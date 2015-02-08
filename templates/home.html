@@ -1,0 +1,41 @@
+<html>
+	<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/noodle.js"></script>
+	</head>
+	<body>
+		<h2>Noodle Code Exercise...</h2>
+		<div id="create">
+			<h2><u>Create Product</u></h2>
+			<form method="POST" action="/create">
+				{% csrf_token %}
+				{{ form.as_p }}
+				<input type='submit' value='Create' />
+			</form>
+		</div>
+		<br />
+		<h2><u>Read, Delete and Update operations</u></h2>
+		<div id="list_results"></div>
+		<div id="update_div" hidden> 
+			<form onsubmit="update_product()" action='#'> 
+				{% csrf_token %}
+			<table>
+			<tr>
+				<input type="hidden" name="id" id="id" />
+				<td>Name: <input type="text" name="name" id="name"></td>
+				<td>Price: <input type="text" name="price" id="price"></td>
+				<td>Category: <input type="text" name="category" id="category"></td>
+				<tr><td><input type="submit" value="Update"></td></tr>
+			</tr>
+			</table>
+			</form>
+		</div>
+		<div id="search1">
+			<h2>Search By Name and Category</h2>
+			<form onsubmit="get_search_results()" action="#">
+				<input type="text" id="q" /> &nbsp;<input id="search" type="submit" value="Search" />
+			</form>
+		</div>
+		<div id="search_results"></div>
+	</body>
+</html>
