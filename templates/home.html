@@ -1,9 +1,9 @@
-<html>
+<html ng-app="App">
 	<head>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src= "http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/noodle.js"></script>
 	</head>
-	<body>
+	<body data-ng-controller="productDetails">
 		<h2>Noodle Code Exercise...</h2>
 		<div id="create">
 			<h2><u>Create Product</u></h2>
@@ -15,27 +15,50 @@
 		</div>
 		<br />
 		<h2><u>Read, Delete and Update operations</u></h2>
-		<div id="list_results"></div>
-		<div id="update_div" hidden> 
-			<form onsubmit="update_product()" action='#'> 
+		
+		<div>
+		<table><tr><th>Name</th><th>Price</th><th>Category</th></tr>
+			<tr ng-repeat="product in products">
+				<td>{//product.name//}</td>
+				<td>{//product.price//}</td>
+				<td>{//product.category//}</td>
+				<td><a href='#' ng-click='delete_product(product.id)'>delete</a></td>
+				<td><a href='#' ng-click="show_update_product(product.id)">update</a></td>
+			</tr>
+		</table>
+		</div>
+
+		<div id="update_div"> 
+			<form method="POST" ng-submit="update_product()" ng-show="status"> 
 				{% csrf_token %}
 			<table>
 			<tr>
-				<input type="hidden" name="id" id="id" />
-				<td>Name: <input type="text" name="name" id="name"></td>
-				<td>Price: <input type="text" name="price" id="price"></td>
-				<td>Category: <input type="text" name="category" id="category"></td>
+				<input type="hidden" ng-model="name"/>
+				<td>Name: <input type="text" ng-model="name" name="name" id="name"></td>
+				<td>Price: <input type="text" ng-model="price" name="price" id="price"></td>
+				<td>Category: <input type="text" ng-model="category" name="category" id="category"></td>
 				<tr><td><input type="submit" value="Update"></td></tr>
 			</tr>
 			</table>
 			</form>
 		</div>
-		<div id="search1">
+		
+		<div id="search">
 			<h2>Search By Name and Category</h2>
-			<form onsubmit="get_search_results()" action="#">
-				<input type="text" id="q" /> &nbsp;<input id="search" type="submit" value="Search" />
+			<form ng-submit="get_search_results()">
+				<input type="text" ng-model="q" id="q" /> &nbsp;<input id="search" type="submit" value="Search" />
 			</form>
 		</div>
-		<div id="search_results"></div>
+
+		<div>
+		<table ng-show="search_status"><tr><th>Name</th><th>Price</th><th>Category</th></tr>
+			<tr ng-repeat="product in search_results">
+				<td>{//product.fields.name//}</td>
+				<td>{//product.fields.price//}</td>
+				<td>{//product.fields.category//}</td>
+			</tr>
+		</table>
+		<p ng-show="search_result">Not Results Found...</p>
+		</div>
 	</body>
 </html>

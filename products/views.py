@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 import json
 from utils import get_query
@@ -45,15 +46,19 @@ def read(request, pk):
 	return JSONResponse(json.dumps(response, cls=DjangoJSONEncoder))
 
 #updates single product
+@csrf_exempt
 @require_http_methods(["POST"])
 def update(request):
+	#data = urlencode(json.loads(request.body))
+	#request.POST = QueryDict(data)
 	if request.method == "POST":
-		pk = request.POST.get('id')
+		form_data = json.loads(request.body)
+		pk = form_data.get('id')
 		try:
 			product = Product.objects.get(id=pk)
-			product.name = request.POST.get('name')
-			product.price = request.POST.get('price')
-			product.category = request.POST.get('category')
+			product.name = form_data.get('name')
+			product.price = form_data.get('price')
+			product.category = form_data.get('category')
 			product.save()
 			response = {"status": True}
 		except Exception, e:
@@ -80,4 +85,5 @@ def search(request):
 		entry_query = get_query(request.GET['q'], ['name', 'category',])
 		found_entries = Product.objects.filter(entry_query)
 	found_entries = serializers.serialize("json", found_entries)
-	return HttpResponse(found_entries)
+	#print JSONResponse(found_entries)
+	return JSONResponse(found_entries)

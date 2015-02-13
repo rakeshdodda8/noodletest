@@ -1,63 +1,61 @@
-$(document).ready(function(){
-	$.getJSON('get_list',function(data) {
-				list_json(data);
-	});
-});
-function get_search_results(){
-	query_string = document.getElementById("q").value;
-	$.getJSON('search?q='+query_string,function(data) {
-			if(data.length > 0)
-			{
-				  var htmlStr = "<table><tr><th>Name</th><th>Price</th><th>Category</th></tr>";
-			      $.each(data, function(key, val) {
-					htmlStr = htmlStr + "<tr><td>"+val.fields.name+"</td><td>"+val.fields.price+"</td><td>"+val.fields.category+"</td><tr>";
-					});
-			      htmlStr = htmlStr + "</table>";
-			      $("#search_results").html(htmlStr);
-			}
-			else
-				$("#search_results").html("<br/>Not Results Found...");
-		});
-}
-function list_json(data)
-{
-	if(data.length > 0)
-	{
-		  var htmlStr = "<table><tr><th>Name</th><th>Price</th><th>Category</th></tr>";
-	      $.each(data, function(key, val) {
-			htmlStr = htmlStr + "<tr><td>"+val.name+"</td><td>"+val.price+"</td><td>"+val.category+"</td><td><a href='#' onclick='delete_product("+val.id+")'>delete</a></td><td><a href='#' onclick='show_update_product("+val.id+")'>update</a></td></tr>";
-			});
-	      htmlStr = htmlStr + "</table>";
-	      $("#list_results").html(htmlStr);
-	}
-	else
-		$("#list_results").html("<br/>Not Products Found...");
-}
-function delete_product(prod_id)
-{
-	$.getJSON('delete/'+prod_id,function(data) {
-		$.getJSON('get_list',function(data) {
-				list_json(data);
-		});
-	});
-}
-function show_update_product(prod_id){
-$.getJSON('read/'+prod_id,function(data) {
+var home = angular.module('App', []);
+           
+          home.config(function($interpolateProvider) {
+            $interpolateProvider.startSymbol('{//');
+            $interpolateProvider.endSymbol('//}');
+          });	
 		
-		$('#id').val(data.id);
-		$('#name').val(data.name);
-		$('#price').val(data.price);
-		$('#category').val(data.category);
-		$('#update_div').show();
-});
-}
-function update_product(){
-data = { id : $("#id").val(), name: $("#name").val(), price: $("#price").val(), category: $("#category").val(), csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val() }
-$.post("/update",
-        data,
-        function(data,status){
-            $.getJSON('get_list',function(data) {
-				list_json(data);
-		}); 
-        });
-}
+		home.controller("productDetails", function ($scope, $http){
+			$scope.list_all_products = function(){
+				$http.get('get_list', {}).success(function (data) {
+				  $scope.products = data;
+				}).error(function (data) {
+				});
+			}
+
+			$scope.list_all_products();
+
+			$scope.delete_product = function(prod_id){
+		       $http.get('delete/'+prod_id, {}).success(function (data) {
+		        	$scope.list_all_products();
+		        }).error(function (data) {});
+			}
+
+			$scope.status = false;
+			$scope.show_update_product = function(prod_id){
+			$scope.status = true;
+				$http.get('read/'+prod_id, {}).success(function (data) {
+					$scope.id = data.id;
+					$scope.name = data.name;
+					$scope.price = data.price;
+					$scope.category = data.category;
+				}).error(function (data) {});
+			}
+
+			$scope.update_product = function(){
+				data = { 'id' : $scope.id, 'name': $scope.name, 'price': $scope.price, 'category': $scope.category}
+			 	$http.post('/update', data).success(function (data) {
+				    $scope.list_all_products();
+				    $scope.status = false;
+			    }).error(function (data) {
+			        });
+			}
+
+			$scope.search_status = false;
+			$scope.get_search_results = function(){
+				query_string = $scope.q;
+				$http.get('search?q='+query_string, {}).success(function (data) {
+				if(data.length > 0)
+				{
+					$scope.search_status = true;
+					$scope.search_result = false;
+					$scope.search_results = data;
+				}
+				else
+				{
+					$scope.search_status = false;
+					$scope.search_result = true;
+				}
+				}).error(function (data) {});
+			}
+	});
