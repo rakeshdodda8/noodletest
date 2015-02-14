@@ -5,7 +5,7 @@ class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=150)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    category = models.CharField(max_length=50, blank=True)
+    category = models.CharField(max_length=50, blank=True, null = True)
 
     def as_json(self):
         return dict(

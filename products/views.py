@@ -49,6 +49,8 @@ def read(request, pk):
 @csrf_exempt
 @require_http_methods(["POST"])
 def update(request):
+	import pdb
+	pdb.set_trace()
 	#data = urlencode(json.loads(request.body))
 	#request.POST = QueryDict(data)
 	if request.method == "POST":
